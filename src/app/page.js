@@ -1,3 +1,4 @@
+import Category from '@/components/home/Category'
 import HomeBanner from '@/components/home/HomeBanner'
 import Navbar from '@/shared/Navbar'
 import React from 'react'
@@ -7,6 +8,7 @@ const page = () => {
     <div className=''>
       <Navbar/>
       <HomeBanner/>
+      <Category/>
     </div>
   )
 }
