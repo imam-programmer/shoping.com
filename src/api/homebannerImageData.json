@@ -1,0 +1,17 @@
+[
+    {
+        "id":1,
+        "img":"/images/homeBanner.webp",
+        "alt":"homebanner1"
+    },
+      {
+        "id":2,
+        "img":"/images/homeBanner2.webp",
+        "alt":"homebanner2"
+    },
+      {
+        "id":3,
+        "img":"/images/homeBanner4.webp",
+        "alt":"homebanner4"
+    }
+]
