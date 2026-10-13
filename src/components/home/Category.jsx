@@ -115,18 +115,18 @@ const Category = () => {
     return (
         <section className='mt-16'>
 
-        <div className='container'>
-            <Title title="Shop by Category" className='text-center mb-[32px]'/>
-            <div className="grid grid-cols-6 ">
-            {catArray.map((item)=>(
-                <div className='h-30 w-45.5  flex items-center justify-center flex-col'>
-                    <h3 key={item.id} className='h-[80] w-[80] bg-[#E5E7EB] rounded-full flex items-center justify-center'>{item.svg}</h3>
-                    <h4>{item.title}</h4>
-                </div>
-            ))}
+            <div className='container'>
+                <Title title="Shop by Category" className='text-center mb-8' />
+                <div className="grid grid-cols-6 ">
+                    {catArray.map((item) => (
+                        <div  key={item.id} className='h-30 w-45.5  flex items-center justify-center flex-col'>
+                            <h3 className='h-[80] w-[80] bg-[#E5E7EB] rounded-full flex items-center justify-center'>{item.svg}</h3>
+                            <h4>{item.title}</h4>
+                        </div>
+                    ))}
 
+                </div>
             </div>
-        </div>
         </section>
     )
 }
