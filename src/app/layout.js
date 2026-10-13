@@ -3,6 +3,7 @@ import "./globals.css";
 
 
 
+
 const inter = Inter({
   variable: "--font-inter-custom",
   subsets: ["latin"],
@@ -19,7 +20,9 @@ export default function RootLayout({ children }) {
       lang="en"
       className={` ${inter.className} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        </body>
     </html>
   );
 }

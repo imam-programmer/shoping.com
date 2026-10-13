@@ -57,7 +57,10 @@ const Navbar = () => {
                 {/* cart and user */}
                 <div className='flex items-center gap-5 lg:gap-8 shrink-0'>
                     <div className='relative'>
+                        <Link href="/cart">
+
                         <CartSVG className="h-5 w-[22.5px] cursor-pointer" />
+                        </Link>
                         <span className='h-5 w-5 absolute bg-[#EF4444] flex items-center justify-center rounded-full text-[12px] text-white -top-5 -right-3'>3</span>
                     </div>
                     <UserSVG className="h-5 w-[17.5px] cursor-pointer" />
