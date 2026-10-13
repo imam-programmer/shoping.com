@@ -1,8 +1,11 @@
+import Navbar from '@/shared/Navbar'
 import React from 'react'
 
 const page = () => {
   return (
-    <div>page</div>
+    <div className='container'>
+      <Navbar/>
+    </div>
   )
 }
 
