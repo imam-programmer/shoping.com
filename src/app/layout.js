@@ -1,8 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-
-
-
+import Providers from "@/Providers";
 
 const inter = Inter({
   variable: "--font-inter-custom",
@@ -21,7 +19,12 @@ export default function RootLayout({ children }) {
       className={` ${inter.className} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+       <Providers>
+
         {children}
+       </Providers>
+
+    
         </body>
     </html>
   );

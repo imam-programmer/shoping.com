@@ -9,10 +9,12 @@ import MenuSVG from '@/svgs/MenuSVG'
 import MenuXSVG from '@/svgs/MenuXSVG'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useSelector } from 'react-redux'
 
 
 const Navbar = () => {
     const [open, setOpen] = useState(false)
+    const cartData=useSelector(item=>item.cart.items)
     const router = useRouter()
     function handlenavLink(link){
         router.push(link)
@@ -61,7 +63,7 @@ const Navbar = () => {
 
                         <CartSVG className="h-5 w-[22.5px] cursor-pointer" />
                         </Link>
-                        <span className='h-5 w-5 absolute bg-[#EF4444] flex items-center justify-center rounded-full text-[12px] text-white -top-5 -right-3'>3</span>
+                        <span className='h-5 w-5 absolute bg-[#EF4444] flex items-center justify-center rounded-full text-[12px] text-white -top-5 -right-3'>{cartData?cartData.length:"0"}</span>
                     </div>
                     <UserSVG className="h-5 w-[17.5px] cursor-pointer" />
                 </div>

@@ -1,8 +1,8 @@
 import React from 'react'
 import { cacheLife } from 'next/cache'
 import Title from './hometitles/Title'
-import ProductCart from '../common/ProductCart'
 import Link from 'next/link'
+import FeaturedClient from './FeaturedClient'
 
 async function getProducts() {
 'use cache'
@@ -31,18 +31,14 @@ return (
                 <Title title="Featured Products" />
 
                 <Link
-                    href="/category"
+                    href="/categories"
                     className="shrink-0 text-base font-medium leading-6 text-[#3B82F6]"
                 >
                     View all
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {product.slice(0, 4).map((item) => (
-                    <ProductCart key={item.id} item={item} />
-                ))}
-            </div>
+          <FeaturedClient initialProducts={product} />
         </div>
     </section>
 )

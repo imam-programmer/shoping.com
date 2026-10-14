@@ -14,7 +14,7 @@ const HomeBanner = () => {
                     <p className='text-base sm:text-lg lg:text-[20px] font-normal leading-6 lg:leading-7 text-[#DBEAFE] mb-6 lg:mb-8'>
                         Up to 70% off on selected items. Limited time offer!
                     </p>
-                    <Link href="/category" className='py-3.5 px-6.5 text-[#2563EB] text-base font-semibold rounded-lg bg-white'>
+                    <Link href="/categories" className='py-3.5 px-6.5 text-[#2563EB] text-base font-semibold rounded-lg bg-white'>
                         Shop Now
                     </Link>
                 </div>

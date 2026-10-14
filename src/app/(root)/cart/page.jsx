@@ -1,36 +1,13 @@
-"use client"
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-const initialCartItems = [
-   {
-      id: 1,
-      name: "Velvet Sneaker",
-      image: "https://readymadeui.com/images/product14.webp",
-      price: 20.0,
-      quantity: 2,
-      size: "Small",
-   },
-   {
-      id: 2,
-      name: "Smart Watch Timex",
-      image: "https://readymadeui.com/images/watch7.webp",
-      price: 120.0,
-      quantity: 1,
-      size: "Small",
-   },
-   {
-      id: 3,
-      name: "Sun Glass",
-      image: "https://readymadeui.com/images/sunglass1.webp",
-      price: 50.0,
-      quantity: 1,
-      size: "Small",
-   },
-];
+'use client'
 
-const SHIPPING = 2.0;
-const TAX = 4.0;
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+   RemoveFromCart,
+   UpdateQuantity,
+} from '@/lib/redux/AddtoCartSlice'
 
 const MinusIcon = () => (
    <svg xmlns="http://www.w3.org/2000/svg" className="w-2.5 fill-current" viewBox="0 0 124 124">
@@ -50,7 +27,7 @@ const PlusIcon = () => (
    </svg>
 );
 
-function CartItem({ item, onRemove, onQuantityChange, onSizeChange }) {
+function CartItem({ item, onRemove, onQuantityChange }) {
    return (
       <li className="grid sm:grid-cols-3 items-start gap-4">
          <div className="flex flex-col sm:items-center sm:flex-row gap-6 sm:col-span-2">
@@ -58,17 +35,17 @@ function CartItem({ item, onRemove, onQuantityChange, onSizeChange }) {
                <img
                   src={item.image}
                   className="w-full h-full object-contain"
-                  alt={item.name}
+                  alt={item.title}
                />
             </div>
 
             <div>
                <h3 className="text-base font-semibold text-slate-900">
-                  {item.name}
+                  {item.title}
                </h3>
                <button
                   type="button"
-                  aria-label={`Remove ${item.name} from cart`}
+                  aria-label={`Remove ${item.title} from cart`}
                   onClick={() => onRemove(item.id)}
                   className="text-xs font-medium text-red-600 cursor-pointer mt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
                >
@@ -76,15 +53,7 @@ function CartItem({ item, onRemove, onQuantityChange, onSizeChange }) {
                </button>
 
                <div className="flex gap-4 mt-6">
-                  <select
-                     value={item.size}
-                     onChange={(e) => onSizeChange(item.id, e.target.value)}
-                     className="px-2.5 py-1.5 border border-slate-300 text-slate-900 text-xs rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                  >
-                     <option value="Small">Small</option>
-                     <option value="Medium">Medium</option>
-                     <option value="Large">Large</option>
-                  </select>
+
 
                   {/* Quantity Selector */}
                   <div className="flex items-center px-2.5 py-1.5 border border-slate-300 text-slate-900 text-xs rounded-md">
@@ -120,37 +89,36 @@ function CartItem({ item, onRemove, onQuantityChange, onSizeChange }) {
 }
 
 export default function ShoppingCart() {
-   const [cartItems, setCartItems] = useState(initialCartItems);
-   const [discount, setDiscount] = useState(0.0);
-   const router=useRouter()
+   const cartItems = useSelector((state) => state.cart.items)
+   const dispatch = useDispatch()
+
+   const [discount, setDiscount] = useState(0)
+   const router = useRouter()
 
    const handleRemove = (id) => {
-      setCartItems((prev) => prev.filter((item) => item.id !== id));
-   };
+      dispatch(RemoveFromCart(id))
+   }
 
    const handleQuantityChange = (id, newQty) => {
-      if (newQty < 1) return;
-      setCartItems((prev) =>
-         prev.map((item) => (item.id === id ? { ...item, quantity: newQty } : item))
-      );
-   };
+      if (newQty < 1) return
 
-   const handleSizeChange = (id, newSize) => {
-      setCartItems((prev) =>
-         prev.map((item) => (item.id === id ? { ...item, size: newSize } : item))
-      );
-   };
-
-   const handlePromoSubmit = (e) => {
-      e.preventDefault();
-      // Promo code logic placeholder
-   };
+      dispatch(
+         UpdateQuantity({
+            id,
+            quantity: newQty,
+         })
+      )
+   }
 
    const subtotal = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
-   );
-   const total = subtotal - discount + SHIPPING + TAX;
+   )
+
+   const SHIPPING = cartItems.length > 0 ? 2 : 0
+   const TAX = cartItems.length > 0 ? 4 : 0
+
+   const total = Math.max(0, subtotal - discount) + SHIPPING + TAX
 
    return (
       <main className="px-4 md:px-8 mt-6">
@@ -164,17 +132,22 @@ export default function ShoppingCart() {
             <div className="grid gap-12 lg:grid-cols-3">
                {/* Shopping Cart Items */}
                <div className="lg:col-span-2">
-                  <ul className="space-y-12 sm:space-y-8">
-                     {cartItems.map((item) => (
-                        <CartItem
-                           key={item.id}
-                           item={item}
-                           onRemove={handleRemove}
-                           onQuantityChange={handleQuantityChange}
-                           onSizeChange={handleSizeChange}
-                        />
-                     ))}
-                  </ul>
+                  {cartItems.length === 0 ? (
+                     <p className="py-10 text-gray-500 text-center">
+                        Your cart is empty.
+                     </p>
+                  ) : (
+                     <ul className="space-y-12 sm:space-y-8">
+                        {cartItems.map((item) => (
+                           <CartItem
+                              key={item.id}
+                              item={item}
+                              onRemove={handleRemove}
+                              onQuantityChange={handleQuantityChange}
+                           />
+                        ))}
+                     </ul>
+                  )}
                </div>
 
                {/* Order Details */}
@@ -218,13 +191,13 @@ export default function ShoppingCart() {
                         Checkout
                      </button>
                      <button
-                        onClick={()=>router.push("/category")}
+                        onClick={() => router.push("/categories")}
                         className="inline-block cursor-pointer text-blue-700 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                      >
                         Continue Shopping
                      </button>
                   </div>
-                
+
                </div>
             </div>
          </div>
