@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from '../../../../firebase.config'
@@ -12,6 +13,8 @@ export default function ProfilePage() {
     const [checkingAuth, setCheckingAuth] = useState(true)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    const [loadedAvatarUrl, setLoadedAvatarUrl] = useState('')
+    const [failedAvatarUrl, setFailedAvatarUrl] = useState('')
 
     useEffect(() => onAuthStateChanged(auth, (currentUser) => {
         if (!currentUser) {
@@ -61,10 +64,24 @@ export default function ProfilePage() {
                     <div className='flex flex-col items-center gap-4 px-6 py-8 sm:flex-row sm:px-10'>
                         <div
                             aria-label={user.photoURL ? `${displayName}'s profile photo` : undefined}
-                            className='flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#2563EB] bg-cover bg-center text-2xl font-semibold text-white'
-                            style={user.photoURL ? { backgroundImage: `url("${user.photoURL}")` } : undefined}
+                            className='relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#2563EB] text-2xl font-semibold text-white'
                         >
-                            {!user.photoURL && avatarLabel}
+                            {(!user.photoURL ||
+                                failedAvatarUrl === user.photoURL ||
+                                loadedAvatarUrl !== user.photoURL) && avatarLabel}
+                            {user.photoURL && failedAvatarUrl !== user.photoURL && (
+                                <Image
+                                    key={user.photoURL}
+                                    src={user.photoURL}
+                                    alt=''
+                                    aria-hidden='true'
+                                    width={80}
+                                    height={80}
+                                    onLoad={() => setLoadedAvatarUrl(user.photoURL)}
+                                    onError={() => setFailedAvatarUrl(user.photoURL)}
+                                    className='absolute inset-0 h-full w-full object-cover'
+                                />
+                            )}
                         </div>
                         <div className='text-center sm:text-left'>
                             <h2 className='text-xl font-semibold text-[#111827]'>{displayName}</h2>

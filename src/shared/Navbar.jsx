@@ -19,6 +19,8 @@ const Navbar = () => {
     const [open, setOpen] = useState(false)
     const [user, setUser] = useState(null)
     const [mounted, setMounted] = useState(false)
+    const [loadedAvatarUrl, setLoadedAvatarUrl] = useState('')
+    const [failedAvatarUrl, setFailedAvatarUrl] = useState('')
 
     const [searchQuery, setSearchQuery] = useState('')
     const [suggestions, setSuggestions] = useState([])
@@ -224,7 +226,7 @@ const Navbar = () => {
                         >
                             <span
                                 aria-hidden="true"
-                                className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#2563EB] bg-cover bg-center text-sm font-semibold text-white"
+                                className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#2563EB] bg-cover bg-center text-sm font-semibold text-white"
                                 style={
                                     user.photoURL
                                         ? {
@@ -233,7 +235,21 @@ const Navbar = () => {
                                         : undefined
                                 }
                             >
-                                {!user.photoURL && avatarLabel}
+                                {(failedAvatarUrl === user.photoURL ||
+                                    loadedAvatarUrl !== user.photoURL) && avatarLabel}
+                                {user.photoURL && failedAvatarUrl !== user.photoURL && (
+                                    <Image
+                                        key={user.photoURL}
+                                        src={user.photoURL}
+                                        alt=""
+                                        aria-hidden="true"
+                                        width={36}
+                                        height={36}
+                                        onLoad={() => setLoadedAvatarUrl(user.photoURL)}
+                                        onError={() => setFailedAvatarUrl(user.photoURL)}
+                                        className="absolute inset-0 h-full w-full object-cover"
+                                    />
+                                )}
                             </span>
                         </Link>
                     ) : (
