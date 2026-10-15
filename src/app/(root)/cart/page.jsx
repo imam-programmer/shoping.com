@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+   ClearCart,
    RemoveFromCart,
    UpdateQuantity,
 } from '@/lib/redux/AddtoCartSlice'
@@ -109,6 +110,16 @@ export default function ShoppingCart() {
             quantity: newQty,
          })
       )
+   }
+
+   const handleCheckout = () => {
+      if (cartItems.length === 0) {
+         alert('Your cart is empty')
+         return
+      }
+
+      dispatch(ClearCart())
+      alert('Checkout successfully')
    }
 
    const subtotal = cartItems.reduce(
@@ -222,10 +233,7 @@ export default function ShoppingCart() {
                   </ul>
 
                   <div className="mt-8 space-y-3 text-center">
-                     <button onClick={()=>cartItems.length==0?
-                     alert("Your cart is empty"):
-                     alert("Checkout successfully")
-                  }
+                     <button onClick={handleCheckout}
                         type="button"
                         className="w-full px-4 py-2.5 text-white text-sm font-semibold rounded-md cursor-pointer bg-blue-600 hover:bg-blue-700 border border-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                      >
