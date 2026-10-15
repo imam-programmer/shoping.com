@@ -10,7 +10,7 @@ import { getAuthErrorMessage } from '@/lib/authErrors'
 const inputClass =
     'w-full rounded-[10px] border border-[#d1d5db] bg-white px-3.5 py-3 text-sm text-[#111827] outline-none transition placeholder:text-[#ADAEBC] focus:border-[#2563EB] focus:ring-4 focus:ring-blue-600/10'
 
-export default function LoginForm() {
+export default function LoginForm(){
     const router = useRouter()
     const [form, setForm] = useState({ email: '', password: '', remember: false })
     const [showPassword, setShowPassword] = useState(false)
