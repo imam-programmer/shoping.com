@@ -4,11 +4,11 @@ import ProductCard from '@/components/shop/ProductCard'
 import FilterSidebar from '@/components/shop/FilterSidebar'
 import SortSelect from '@/components/shop/SortSelect'
 import Pagination from '@/components/shop/Pagination'
-import { PER_PAGE, PRICE_MAX } from '@/lib/shopUtils'
+import { PER_PAGE } from '@/lib/shopUtils'
 
 export const metadata = {
-    title: 'Shop | ShopHub',
-    description: 'Browse all products on ShopHub.',
+    title: 'Categories | ShopHub',
+    description: 'Browse and filter all products by category, price, brand, and rating.',
 }
 
 async function getAllProducts() {
@@ -16,14 +16,17 @@ async function getAllProducts() {
     cacheLife('hours')
 
     const res = await fetch(
-        'https://dummyjson.com/products?limit=0&select=id,title,price,rating,category,brand,thumbnail,reviews'
+        'https://dummyjson.com/products?limit=0&select=id,title,description,price,rating,category,brand,thumbnail,reviews'
     )
     if (!res.ok) throw new Error('Failed to fetch products')
     const data = await res.json()
     return data.products
 }
 
-const list = (v) => (v ? v.split(',').filter(Boolean) : [])
+const list = (value) =>
+    typeof value === 'string'
+        ? [...new Set(value.split(',').filter(Boolean))]
+        : []
 
 const sorters = {
     popularity: (a, b) => b.rating - a.rating,
@@ -31,31 +34,40 @@ const sorters = {
     'price-desc': (a, b) => b.price - a.price,
 }
 
-async function ShopContent({ searchParams }) {
+async function CategoriesContent({ searchParams }) {
     const sp = await searchParams
 
+    const all = await getAllProducts()
+    const maxPrice = Math.max(10, ...all.map((product) => product.price))
+    const parseBound = (value, fallback) => {
+        if (value === undefined || value === '') return fallback
+        const parsed = Number(value)
+        return Number.isFinite(parsed) ? Math.max(0, Math.min(maxPrice, parsed)) : fallback
+    }
+    const min = parseBound(sp.min, 0)
+    const max = Math.max(min, parseBound(sp.max, maxPrice))
+    const requestedRating = Number(sp.rating)
+
     const filters = {
+        search: typeof sp.search === 'string' ? sp.search.trim() : '',
         category: list(sp.category),
         brand: list(sp.brand),
-        min: Math.max(0, Number(sp.min) || 0),
-        max: Math.min(PRICE_MAX, Number(sp.max) || PRICE_MAX),
-        rating: Number(sp.rating) || 0,
-        sort: sorters[sp.sort] ? sp.sort : 'popularity',
-        page: Math.max(1, Number(sp.page) || 1),
+        min,
+        max,
+        priceMax: maxPrice,
+        rating: [1, 2, 3, 4].includes(requestedRating) ? requestedRating : 0,
+        sort: Object.hasOwn(sorters, sp.sort) ? sp.sort : 'popularity',
+        page: Math.max(1, Math.floor(Number(sp.page)) || 1),
     }
 
-    const all = await getAllProducts()
-
-    // sidebar facets: top N by count, plus anything already selected
-    const facet = (key, selected, n) => {
+    const facet = (key) => {
         const m = new Map()
         for (const p of all) if (p[key]) m.set(p[key], (m.get(p[key]) || 0) + 1)
         return [...m.entries()]
             .sort((a, b) => b[1] - a[1])
-            .filter(([name], i) => i < n || selected.includes(name))
     }
-    const categories = facet('category', filters.category, 6)
-    const brands = facet('brand', filters.brand, 5)
+    const categories = facet('category')
+    const brands = facet('brand')
     const ratings = [4, 3, 2, 1].map((value) => ({
         value,
         count: all.filter((p) => p.rating >= value).length,
@@ -65,10 +77,13 @@ async function ShopContent({ searchParams }) {
     const result = all
         .filter(
             (p) =>
+                (!filters.search ||
+                    [p.title, p.description, p.category, p.brand]
+                        .some((value) => value?.toLowerCase().includes(filters.search.toLowerCase()))) &&
                 (!filters.category.length || filters.category.includes(p.category)) &&
                 (!filters.brand.length || filters.brand.includes(p.brand)) &&
                 p.price >= filters.min &&
-                (filters.max >= PRICE_MAX || p.price <= filters.max) &&
+                p.price <= filters.max &&
                 p.rating >= filters.rating
         )
         .sort(sorters[filters.sort])
@@ -88,6 +103,11 @@ async function ShopContent({ searchParams }) {
             <div>
                 <div className='mb-4 flex items-center justify-between gap-3'>
                     <p className='text-xs text-[#4B5563] sm:text-sm'>
+                        {filters.search && (
+                            <span className='mr-1'>
+                                Results for &quot;{filters.search}&quot;:
+                            </span>
+                        )}
                         {total === 0
                             ? 'No products found'
                             : `Showing ${startIdx + 1}–${startIdx + items.length} of ${total} products`}
@@ -113,7 +133,7 @@ async function ShopContent({ searchParams }) {
     )
 }
 
-function ShopSkeleton() {
+function CategoriesSkeleton() {
     return (
         <div className='grid items-start gap-5 lg:grid-cols-[208px_1fr]'>
             <div className='h-12 animate-pulse rounded-[10px] bg-[#E5E7EB] lg:h-100' />
@@ -126,13 +146,13 @@ function ShopSkeleton() {
     )
 }
 
-export default function ShopPage({ searchParams }) {
+export default function CategoriesPage({ searchParams }) {
     return (
         <section className='bg-[#F9FAFB] py-6 lg:py-10'>
             <div className='container px-4 xl:px-0'>
-                <h1 className='sr-only'>Shop</h1>
-                <Suspense fallback={<ShopSkeleton />}>
-                    <ShopContent searchParams={searchParams} />
+                <h1 className='sr-only'>Categories</h1>
+                <Suspense fallback={<CategoriesSkeleton />}>
+                    <CategoriesContent searchParams={searchParams} />
                 </Suspense>
             </div>
         </section>

@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Stars from './Stars'
-import { buildHref, PRICE_MAX } from '@/lib/shopUtils'
+import { buildHref } from '@/lib/shopUtils'
 
 const thumb =
     'pointer-events-none absolute inset-0 h-5 w-full appearance-none bg-transparent ' +
@@ -36,7 +35,7 @@ const CheckRow = ({ label, count, checked, onChange }) => (
 )
 
 // remounted via `key` when the URL values change, so local state never goes stale
-function PriceRange({ min: initMin, max: initMax, onCommit }) {
+function PriceRange({ min: initMin, max: initMax, priceMax, onCommit }) {
     const [min, setMin] = useState(initMin)
     const [max, setMax] = useState(initMax)
 
@@ -48,12 +47,12 @@ function PriceRange({ min: initMin, max: initMax, onCommit }) {
                 <div className='absolute top-1/2 h-1 w-full -translate-y-1/2 rounded bg-[#E5E7EB]' />
                 <div
                     className='absolute top-1/2 h-1 -translate-y-1/2 rounded bg-[#2563EB]'
-                    style={{ left: `${(min / PRICE_MAX) * 100}%`, right: `${100 - (max / PRICE_MAX) * 100}%` }}
+                    style={{ left: `${(min / priceMax) * 100}%`, right: `${100 - (max / priceMax) * 100}%` }}
                 />
                 <input
                     type='range'
                     min={0}
-                    max={PRICE_MAX}
+                    max={priceMax}
                     step={10}
                     value={min}
                     aria-label='Minimum price'
@@ -65,7 +64,7 @@ function PriceRange({ min: initMin, max: initMax, onCommit }) {
                 <input
                     type='range'
                     min={0}
-                    max={PRICE_MAX}
+                    max={priceMax}
                     step={10}
                     value={max}
                     aria-label='Maximum price'
@@ -77,7 +76,7 @@ function PriceRange({ min: initMin, max: initMax, onCommit }) {
             </div>
             <div className='mt-2 flex justify-between text-xs text-[#4B5563]'>
                 <span>${min}</span>
-                <span>${max >= PRICE_MAX ? `${PRICE_MAX}+` : max}</span>
+                <span>${max}</span>
             </div>
         </div>
     )
@@ -114,15 +113,17 @@ export default function FilterSidebar({ filters, categories, brands, ratings }) 
                 <h2 className='mb-4 hidden text-base font-semibold text-[#111827] lg:block'>Filter Products</h2>
 
                 <Section title='Categories'>
-                    {categories.map(([name, count]) => (
-                        <CheckRow
-                            key={name}
-                            label={name}
-                            count={count}
-                            checked={filters.category.includes(name)}
-                            onChange={() => toggle('category', name)}
-                        />
-                    ))}
+                    <div className='max-h-56 overflow-y-auto pr-1'>
+                        {categories.map(([name, count]) => (
+                            <CheckRow
+                                key={name}
+                                label={name}
+                                count={count}
+                                checked={filters.category.includes(name)}
+                                onChange={() => toggle('category', name)}
+                            />
+                        ))}
+                    </div>
                 </Section>
 
                 <Section title='Price Range'>
@@ -130,37 +131,25 @@ export default function FilterSidebar({ filters, categories, brands, ratings }) 
                         key={`${filters.min}-${filters.max}`}
                         min={filters.min}
                         max={filters.max}
+                        priceMax={filters.priceMax}
                         onCommit={(min, max) => go({ min, max })}
                     />
                 </Section>
 
                 <Section title='Brand'>
-                    {brands.map(([name, count]) => (
-                        <CheckRow
-                            key={name}
-                            label={name}
-                            count={count}
-                            checked={filters.brand.includes(name)}
-                            onChange={() => toggle('brand', name)}
-                        />
-                    ))}
+                    <div className='max-h-56 overflow-y-auto pr-1'>
+                        {brands.map(([name, count]) => (
+                            <CheckRow
+                                key={name}
+                                label={name}
+                                count={count}
+                                checked={filters.brand.includes(name)}
+                                onChange={() => toggle('brand', name)}
+                            />
+                        ))}
+                    </div>
                 </Section>
 
-                <Section title='Rating'>
-                    {ratings.map(({ value, count }) => (
-                        <button
-                            key={value}
-                            type='button'
-                            onClick={() => go({ rating: filters.rating === value ? 0 : value })}
-                            className={`flex w-full cursor-pointer items-center gap-2 rounded py-1 text-xs ${filters.rating === value ? 'font-semibold text-[#2563EB]' : 'text-[#4B5563]'
-                                }`}
-                        >
-                            <Stars rating={value} />
-                            <span className='flex-1 text-left'>{value} &amp; above</span>
-                            <span className='text-[#9CA3AF]'>{count}</span>
-                        </button>
-                    ))}
-                </Section>
             </div>
         </aside>
     )

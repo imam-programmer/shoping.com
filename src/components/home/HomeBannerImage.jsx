@@ -39,6 +39,7 @@ const HomeBannerImage = () => {
               alt={item.alt}
               sizes="(max-width: 768px) 100vw, 50vw"
               className="h-full w-full object-cover"
+              loading="eager"
             />
           </SwiperSlide>
         ))}

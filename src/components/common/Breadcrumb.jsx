@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation'
 const segmentConfig = {
     shop: { label: 'Shop' },
     category: { label: 'Categories' },
-    product: { label: 'Shop', href: '/shop' },
+    product: { label: 'Categories', href: '/categories' },
 }
 
 const formatSegment = (seg) => decodeURIComponent(seg).replace(/-/g, ' ')
@@ -32,7 +32,11 @@ const Breadcrumb = ({ labels = {} }) => {
         return {
             path,
             href: cfg?.href ?? path,
-            label: labels[path] ?? cfg?.label ?? formatSegment(seg),
+            label:
+                labels[path] ??
+                (segments[0] === 'product' && i === 1
+                    ? 'Product details'
+                    : cfg?.label ?? formatSegment(seg)),
         }
     })
 
